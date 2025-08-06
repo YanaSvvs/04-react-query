@@ -1,12 +1,18 @@
 import axios from 'axios';
-import type { FetchMoviesResponse } from '../types/movie';
+import type { Movie } from '../types/movie';
 
-export const fetchMovies = async (query: string, page: number): Promise<FetchMoviesResponse> => {
+export interface FetchMoviesResponse {
+  page: number;
+  results: Movie[];
+  total_pages: number;
+  total_results: number;
+}
+
+export const fetchMovies = async (query: string, page: number = 1): Promise<FetchMoviesResponse> => {
   try {
-   
-    const response = await axios.get<FetchMoviesResponse>('/api/movies', {
+    const response = await axios.get<FetchMoviesResponse>(`/api/movies`, {
       params: { 
-        query,
+        query, 
         page 
       },
     });
@@ -16,17 +22,16 @@ export const fetchMovies = async (query: string, page: number): Promise<FetchMov
     console.error("Error in fetchMovies (client-side):", error);
     if (axios.isAxiosError(error)) {
       const apiError = error.response?.data?.error;
-      const status = error.response?.status;
+      const status = error.response?.status; 
 
-      let errorMessage = `Failed to fetch movies: ${apiError || error.message || 'Unknown error.'}`;
       if (status === 401) {
-        errorMessage = `Authentication failed. Please check your VITE_TMDB_TOKEN and server configuration.`;
+        throw new Error(`Authentication failed. Please check your VITE_TMDB_TOKEN and server configuration.`);
       } else if (status === 400) {
-        errorMessage = `Invalid request: ${apiError || 'Query missing.'}`;
+        throw new Error(`Invalid request: ${apiError || 'Query missing.'}`);
       } else if (status === 500) {
-        errorMessage = `Server error: ${apiError || 'Please try again later.'}`;
+        throw new Error(`Server error: ${apiError || 'Please try again later.'}`);
       }
-      throw new Error(errorMessage);
+      throw new Error(`Failed to fetch movies: ${apiError || error.message || 'Unknown error.'}`);
     } else {
       throw new Error('An unexpected error occurred while fetching movies.');
     }
