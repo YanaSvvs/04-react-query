@@ -9,11 +9,21 @@ export interface FetchMoviesResponse {
 }
 
 export const fetchMovies = async (query: string, page: number = 1): Promise<FetchMoviesResponse> => {
+  const tmdbToken = import.meta.env.VITE_TMDB_TOKEN;
+
+  if (!tmdbToken) {
+    throw new Error("TMDB token is not configured.");
+  }
+
   try {
     const response = await axios.get<FetchMoviesResponse>(`/api/movies`, {
       params: { 
         query, 
         page 
+      },
+      headers: {
+        Authorization: `Bearer ${tmdbToken}`,
+        'Content-Type': 'application/json;charset=utf-8',
       },
     });
 
@@ -22,7 +32,7 @@ export const fetchMovies = async (query: string, page: number = 1): Promise<Fetc
     console.error("Error in fetchMovies (client-side):", error);
     if (axios.isAxiosError(error)) {
       const apiError = error.response?.data?.error;
-      const status = error.response?.status; 
+      const status = error.response?.status;
 
       if (status === 401) {
         throw new Error(`Authentication failed. Please check your VITE_TMDB_TOKEN and server configuration.`);
