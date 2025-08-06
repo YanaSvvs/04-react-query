@@ -1,3 +1,58 @@
-.app {
-  padding: 0 16px;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 16px 0;
+  list-style: none;
+  padding: 0;
+  user-select: none;
+}
+
+.pagination li {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.pagination li:hover {
+  background-color: #f0f0f0;
+}
+
+.pagination a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.active {
+  background-color: #0a66c2;
+  color: white;
+  font-weight: bold;
+  border-color: #0a66c2;
+}
+
+.active:hover {
+  background-color: #004182;
+}
+
+.pagination .previous.disabled,
+.pagination .next.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pagination .previous.disabled:hover,
+.pagination .next.disabled:hover {
+  background-color: transparent;
 }

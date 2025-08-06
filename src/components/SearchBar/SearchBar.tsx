@@ -1,25 +1,29 @@
-import { useRef } from 'react';
+import { useRef, type FormEvent } from 'react';
 import toast from 'react-hot-toast';
 import styles from './SearchBar.module.css';
 
 interface SearchBarProps {
-  onSubmit: (query: string) => Promise<void>;
+  
+  onSubmit: (query: string) => void;
 }
 
 export default function SearchBar({ onSubmit }: SearchBarProps) {
-  const formRef = useRef<HTMLFormElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  async function handleSearch(formData: FormData) {
-    const searchQuery = formData.get('query') as string;
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    const searchQuery = inputRef.current?.value ?? '';
 
     if (searchQuery.trim() === '') {
       toast.error('Please enter your search query.');
       return;
     }
 
-    await onSubmit(searchQuery);
-
-    formRef.current?.reset();
+    onSubmit(searchQuery);
+   
+    if(inputRef.current) {
+      inputRef.current.value = '';
+    }
   }
 
   return (
@@ -33,12 +37,12 @@ export default function SearchBar({ onSubmit }: SearchBarProps) {
         >
           Powered by TMDB
         </a>
-        {/* 4. Передаємо функцію handleSearch в атрибут action */}
-        <form className={styles.form} ref={formRef} action={handleSearch}>
+        <form className={styles.form} onSubmit={handleSubmit}>
           <input
+            ref={inputRef}
             className={styles.input}
             type="text"
-            name="query" 
+            name="query"
             autoComplete="off"
             placeholder="Search movies..."
             autoFocus
