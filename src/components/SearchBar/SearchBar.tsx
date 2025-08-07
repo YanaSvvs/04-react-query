@@ -1,35 +1,36 @@
-import React from 'react';
+
+import React, { useRef } from 'react';
 import { toast } from 'react-hot-toast';
 import './SearchBar.module.css';
 
-export interface SearchBarProps {
+interface SearchBarProps {
   onSubmit: (query: string) => void;
 }
 
-export default function SearchBar({ onSubmit }: SearchBarProps) {
-  const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const query = formData.get('search') as string;
+const SearchBar: React.FC<SearchBarProps> = ({ onSubmit }) => {
+  const formRef = useRef<HTMLFormElement>(null);
 
+  const handleAction = (formData: FormData) => {
+    const query = formData.get('query') as string;
     if (query.trim() === '') {
-      toast.error('Please enter your search query.');
+      toast.error('Please enter a search query.');
       return;
     }
     onSubmit(query);
+    formRef.current?.reset();
   };
 
   return (
-    <form onSubmit={handleSearch} className='search-form'>
+    <form ref={formRef} action={handleAction}>
       <input
         type="text"
-        name="search"
+        name="query"
         placeholder="Search movies..."
-        className='search-input'
+        aria-label="Search movies"
       />
-      <button type="submit" className='search-button'>
-        Search
-      </button>
+      <button type="submit">Search</button>
     </form>
   );
-}
+};
+
+export default SearchBar;

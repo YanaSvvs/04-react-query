@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { toast } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
 import MovieGrid from '../MovieGrid/MovieGrid';
 import MovieModal from '../MovieModal/MovieModal';
 import SearchBar from '../SearchBar/SearchBar';
 import Loader from '../Loader/Loader';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
-import Pagination from '../Pagination';
+import ReactPaginate from 'react-paginate';
 import { fetchMovies } from '../../services/movieService'; 
 import type { Movie } from '../../types/movie'; 
 import './App.module.css';
@@ -34,24 +34,37 @@ function App() {
     setPage(1);
   };
 
+  const handlePageChange = ({ selected }: { selected: number }) => {
+    setPage(selected + 1);
+  };
+
   const movies = data?.results || [];
 
-  return (
+   return (
     <div className='app'>
       <h1>Movie Search</h1>
       <SearchBar onSubmit={handleSearch} />
       {isError && <ErrorMessage message={error.message} />}
       {(isLoading || isFetching) && <Loader />}
-      {isSuccess && movies.length > 0 && <MovieGrid movies={movies} onMovieSelect={setSelectedMovie} />}
+      {isSuccess && movies.length > 0 && <MovieGrid movies={movies} onSelect={setSelectedMovie} />}
       {isSuccess && movies.length === 0 && query && !isLoading && (
         <p className='no-movies-message'>No movies found for your request.</p>
       )}
-      {isSuccess && movies.length > 0 && <Pagination 
-        currentPage={page} 
-        totalPages={data?.total_pages || 0} 
-        onPageChange={setPage} 
-      />}
+      {isSuccess && movies.length > 0 && (
+        <ReactPaginate
+          pageCount={data?.total_pages || 0}
+          onPageChange={handlePageChange}
+          forcePage={page - 1}
+          containerClassName={'pagination'}
+          activeClassName={'active'}
+          pageRangeDisplayed={5}
+          marginPagesDisplayed={2}
+          previousLabel={'Previous'}
+          nextLabel={'Next'}
+        />
+      )}
       {selectedMovie && <MovieModal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />}
+      <Toaster /> {/* Компонент Toaster додано */}
     </div>
   );
 }
